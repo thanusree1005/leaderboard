@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_chip, copy_btn %}
+{% block title %}Campus Lead Kit{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Campus Lead Kit</h1>
+    <p class="lede">Everything a campus lead needs to bring classmates to the free workshop: a personal link, a ready-to-send WhatsApp message and a live view of progress.</p>
+  </div>
+</div>
+
+<div class="switcher" aria-label="Choose a demo campus lead">
+  <span class="switcher-label">Demo lead</span>
+  <div class="switcher-list">
+    {% for l in leads %}
+    <a href="/lead-kit?lead={{ l.code }}"{% if l.code == lead.code %} class="on" aria-current="true"{% endif %}>{{ l.name }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="kit-grid">
+  <section class="panel lead-card" aria-labelledby="lead-name">
+    <div class="lead-top">
+      <div class="avatar" aria-hidden="true">{{ lead.name[0] }}</div>
+      <div>
+        <h2 id="lead-name">{{ lead.name }}</h2>
+        <p class="muted">{{ lead.college }}</p>
+      </div>
+      <div class="lead-status">{{ status_chip(lead.status, lead.status_key) }}</div>
+    </div>
+
+    <dl class="kv">
+      <div><dt>Lead code</dt><dd><code>{{ lead.code }}</code></dd></div>
+      <div><dt>Current rank</dt><dd>#{{ lead.rank }} <span class="muted">of {{ leads|length }} leads</span></dd></div>
+      <div><dt>Groups posted</dt><dd>{{ lead.groups }}</dd></div>
+    </dl>
+
+    <div class="progress-block">
+      <div class="progress-head">
+        <div>
+          <p class="metric-label">Registrations generated</p>
+          <p class="metric-num">{{ lead.regs }}<span class="metric-of"> / {{ lead.goal }} goal</span></p>
+        </div>
+        <p class="metric-pct">{{ lead.pct }}%</p>
+      </div>
+      <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ lead.pct }}" aria-label="Progress to goal">
+        <div class="bar-fill" style="width: {{ '%.1f' % lead.fill }}%"></div>
+      </div>
+      <p class="hint">Simulated Day {{ snapshot_day }} of {{ campaign_days }}. A lead on pace would have about {{ lead.expected }} registrations by now.</p>
+      {% if lead.live %}<p class="hint live-note">Plus {{ lead.live }} live test sign-up{{ 's' if lead.live != 1 }} through this link (not part of the simulation).</p>{% endif %}
+    </div>
+  </section>
+
+  <section class="panel share-card" aria-labelledby="share-h">
+    <h2 id="share-h">Your referral link</h2>
+    <div class="linkrow">
+      <input class="linkbox" id="ref-link" type="text" readonly value="{{ link }}" aria-label="Personal referral link" onfocus="this.select()">
+      {{ copy_btn(link, 'Copy referral link', 'Link copied', 'btn btn-primary') }}
+    </div>
+    <p class="hint">Anyone who registers through this link is credited to {{ lead.name.split()[0] }} automatically.</p>
+
+    <h2 class="mt">WhatsApp message</h2>
+    <label class="sr-only" for="wa-msg">WhatsApp message</label>
+    <textarea class="msgbox" id="wa-msg" readonly rows="5" onfocus="this.select()">{{ message }}</textarea>
+    <div class="btn-row">
+      {{ copy_btn(message, 'Copy WhatsApp message', 'Message copied', 'btn btn-ghost') }}
+      <a class="btn btn-wa" href="{{ wa_url }}" target="_blank" rel="noopener">Open WhatsApp</a>
+    </div>
+    <p class="hint">Open WhatsApp pre-fills this message. Pick a group or contact and send.</p>
+  </section>
+</div>
+
+<section class="panel steps" aria-labelledby="how-h">
+  <h2 id="how-h">How to use your kit</h2>
+  <ol>
+    <li><strong>Post in your class and department groups.</strong> Use the message above as it is. It already has your link.</li>
+    <li><strong>Ask two friends to share it.</strong> Each friend who registers gets their own link and is credited on the student leaderboard.</li>
+    <li><strong>Check the <a href="/leaderboard">leaderboard</a> daily.</strong> Your rank updates as registrations come in.</li>
+  </ol>
+</section>
+{% endblock %}

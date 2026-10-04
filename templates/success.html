@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "_macros.html" import copy_btn %}
+{% block title %}You're registered{% endblock %}
+{% block content %}
+<section class="panel success">
+  <div class="success-head">
+    <div class="check" aria-hidden="true">&#10003;</div>
+    <div>
+      <h1>You're registered, {{ name }}.</h1>
+      <p class="lede">Your seat is reserved. Your referral code is <code>{{ code }}</code>.</p>
+    </div>
+  </div>
+
+  {% if ref_status == 'credited' and referrer %}
+  <p class="invited">Your sign-up was credited to <strong>{{ referrer.name }}</strong> through code <code>{{ ref }}</code>.</p>
+  {% elif ref_status == 'unknown' %}
+  <p class="invited invited-warn">The code <code>{{ ref }}</code> was not recognised, so nobody was credited.</p>
+  {% endif %}
+
+  <div class="share-cta">
+    <h2>Share with 2 friends</h2>
+    <p>Send your link to two friends. When they register with it, you are credited on the student referral leaderboard.</p>
+    <div class="linkrow">
+      <input class="linkbox" type="text" readonly value="{{ link }}" aria-label="Your referral link" onfocus="this.select()">
+      {{ copy_btn(link, 'Copy referral link', 'Link copied', 'btn btn-ghost') }}
+    </div>
+    <div class="btn-row">
+      <a class="btn btn-wa" href="{{ wa_url }}" target="_blank" rel="noopener">Share on WhatsApp</a>
+      {{ copy_btn(message, 'Copy WhatsApp message', 'Message copied', 'btn btn-ghost') }}
+    </div>
+  </div>
+
+  <p class="hint">This was a test sign-up. It shows under live sign-ups on the <a href="/admin">Admin Dashboard</a> and is not part of the simulated numbers.</p>
+</section>
+{% endblock %}

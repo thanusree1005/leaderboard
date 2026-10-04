@@ -1,0 +1,26 @@
+{% macro status_chip(label, key) %}<span class="chip chip-{{ key }}">{{ label }}</span>{% endmacro %}
+
+{% macro copy_btn(text, label, copied, cls='btn btn-ghost') %}<button type="button" class="{{ cls }}" data-copy="{{ text }}" data-copied="{{ copied }}">{{ label }}</button>{% endmacro %}
+
+{# Segmented progress bar: one segment per source, sized by its 7-day target,
+   filled to what the simulation has reached on Day 4. #}
+{% macro goal_bar(sources, total, goal) %}
+<div class="goalbar">
+  <div class="goalbar-track" role="progressbar" aria-valuemin="0" aria-valuemax="{{ goal }}" aria-valuenow="{{ total }}" aria-label="{{ total }} of {{ goal }} simulated registrations">
+    {% for s in sources %}
+    <div class="seg" style="flex: {{ s.target }} 1 0; --c: {{ s.color }}; --t: {{ s.tint }}">
+      <div class="seg-fill" style="width: {{ '%.1f' % s.fill }}%"></div>
+    </div>
+    {% endfor %}
+  </div>
+  <ul class="goalbar-legend">
+    {% for s in sources %}
+    <li style="--c: {{ s.color }}">
+      <span class="dot"></span>
+      <span class="lg-name">{{ s.label }}</span>
+      <span class="lg-num">{{ s.count }} <span class="muted">of {{ s.target }} target</span></span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endmacro %}

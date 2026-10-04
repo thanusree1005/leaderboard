@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}LeadBoard{% endblock %} | LeadBoard</title>
+  <meta name="description" content="LeadBoard: campus lead kit, leaderboard and referral tracking for the free workshop “{{ workshop_title }}”. Demo data only.">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="site-head">
+  <div class="demo-strip" role="note">
+    <strong>{{ demo_label }}</strong>
+    <span class="demo-strip-sub">Every lead, student and number in this prototype is fictional. Sign-ups you submit are test entries and are counted separately.</span>
+  </div>
+  <div class="topbar">
+    <a class="brand" href="/lead-kit" aria-label="LeadBoard home">
+      <img src="/static/favicon.svg" alt="" width="28" height="28">
+      <span>LeadBoard</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="/lead-kit"{% if active == 'lead-kit' %} class="on" aria-current="page"{% endif %}>Lead Kit</a>
+      <a href="/leaderboard"{% if active == 'leaderboard' %} class="on" aria-current="page"{% endif %}>Leaderboard</a>
+      <a href="/register"{% if active == 'register' %} class="on" aria-current="page"{% endif %}>Register</a>
+      <a href="/admin"{% if active == 'admin' %} class="on" aria-current="page"{% endif %}>Admin Dashboard</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="wrap site-foot">
+  <p>LeadBoard is a prototype built for a growth-challenge simulation of the free workshop “{{ workshop_title }}”. All students, campus leads, colleges and campaign numbers are fictional. Nothing here is a real registration.</p>
+</footer>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="/static/app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_chip, goal_bar %}
+{% block title %}Leaderboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Leaderboard</h1>
+    <p class="lede">Who is bringing in the most registrations for “{{ workshop_title }}”.</p>
+  </div>
+  <div class="badges">
+    <span class="badge badge-demo">{{ demo_label }}</span>
+    <span class="badge badge-snap">{{ snapshot_label }}</span>
+  </div>
+</div>
+
+<section class="panel hero" aria-labelledby="hero-h">
+  <div class="hero-top">
+    <div>
+      <h2 id="hero-h" class="sr-only">Progress toward the goal</h2>
+      <p class="hero-num">{{ total }}<span class="hero-of"> of {{ goal }}</span></p>
+      <p class="hero-sub">simulated registrations at the end of Day {{ snapshot_day }} of {{ campaign_days }}</p>
+    </div>
+    <div class="hero-goal">
+      <p class="metric-label">Goal</p>
+      <p class="hero-goal-num">{{ goal }}</p>
+      <p class="muted">{{ progress }}% reached</p>
+    </div>
+  </div>
+  {{ goal_bar(sources, total, goal) }}
+  <p class="hint">Each segment is one source, sized by its 7-day planning target. The filled part is the simulated Day {{ snapshot_day }} result. These are not real registrations.</p>
+</section>
+
+<div class="cols-2">
+  <section class="panel" aria-labelledby="leads-h">
+    <h2 id="leads-h">Top campus leads</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th class="num">#</th><th>Lead</th><th class="num">Registrations</th><th class="col-progress">Progress to goal</th></tr></thead>
+        <tbody>
+          {% for l in leads %}
+          <tr>
+            <td class="num rank">{{ l.rank }}</td>
+            <td><a class="rowlink" href="/lead-kit?lead={{ l.code }}">{{ l.name }}</a><span class="sub">{{ l.college }}</span></td>
+            <td class="num">{{ l.regs }}</td>
+            <td class="barcell col-progress"><div class="bar bar-sm"><div class="bar-fill" style="width: {{ '%.1f' % l.fill }}%"></div></div><span class="barcell-n">{{ l.pct }}%</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="col-h">
+    <h2 id="col-h">College leaderboard</h2>
+    <p class="hint tight">All sources combined.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th class="num">#</th><th>College</th><th class="num">Registrations</th></tr></thead>
+        <tbody>
+          {% for c in colleges %}
+          <tr>
+            <td class="num rank">{{ c.rank }}</td>
+            <td>{{ c.college }}<div class="bar bar-xs"><div class="bar-fill alt" style="width: {{ '%.1f' % c.fill }}%"></div></div></td>
+            <td class="num">{{ c.count }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<section class="panel" aria-labelledby="stu-h">
+  <h2 id="stu-h">Student referral leaderboard</h2>
+  <p class="hint tight">Students ranked by how many friends registered with their code. “Live” counts test sign-ups made on this site, separate from the simulation.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th class="num">#</th><th>Student</th><th class="col-college">College</th><th>Code</th><th class="num">Simulated referrals</th><th class="num">Live</th></tr></thead>
+      <tbody>
+        {% for s in students %}
+        <tr>
+          <td class="num rank">{{ s.rank }}</td>
+          <td>{{ s.name }}</td>
+          <td class="muted col-college">{{ s.college }}</td>
+          <td><code>{{ s.code }}</code></td>
+          <td class="num">{{ s.sim }}</td>
+          <td class="num">{{ s.live }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="cta-line"><a class="btn btn-primary" href="/register">Register and get your own code</a></p>
+</section>
+{% endblock %}

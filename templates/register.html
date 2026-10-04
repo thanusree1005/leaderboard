@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="reg-grid">
+  <section class="reg-intro">
+    <p class="kicker">Free online workshop for final-year students</p>
+    <h1 class="reg-h1">{{ headline }}</h1>
+    <p class="lede">A hands-on session where you build a working AI project from scratch. No prior AI experience required.</p>
+    <ul class="ticks">
+      <li>60 minutes, live and hands-on</li>
+      <li>Free for final-year engineering students</li>
+      <li>Share your code and see your friends credited on the leaderboard</li>
+    </ul>
+    <p class="hint">Headline variant {{ variant }} of the A/B test.{% if variant == 'A' %} <a href="/register?v=B{% if form.get('referral') %}&amp;ref={{ form.get('referral') }}{% endif %}">Preview variant B</a>.{% else %} <a href="/register?v=A{% if form.get('referral') %}&amp;ref={{ form.get('referral') }}{% endif %}">Preview variant A</a>.{% endif %}</p>
+  </section>
+
+  <section class="panel form-card" aria-labelledby="form-h">
+    <h2 id="form-h">Reserve your seat</h2>
+    <p class="notice">This is a prototype. Please use test details rather than your real mobile number. Sign-ups are kept apart from the simulated campaign numbers.</p>
+
+    {% if referrer %}
+    <p class="invited">You were invited by <strong>{{ referrer.name }}</strong>{% if referrer.kind == 'lead' %}, campus lead at {{ referrer.college }}{% else %}, a fellow student{% endif %}.</p>
+    {% elif form.get('referral') %}
+    <p class="invited invited-warn">We don't recognise the code <code>{{ form.get('referral') }}</code>. You can still register, but nobody will be credited.</p>
+    {% endif %}
+
+    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+
+    <form method="post" action="/register" class="form" novalidate>
+      <input type="hidden" name="variant" value="{{ variant }}">
+      <input type="hidden" name="src" value="{{ form.get('src', '') }}">
+
+      <div class="field">
+        <label for="name">Name</label>
+        <input id="name" name="name" required maxlength="80" autocomplete="name" value="{{ form.get('name', '') }}">
+      </div>
+      <div class="field">
+        <label for="college">College</label>
+        <input id="college" name="college" required maxlength="120" list="college-list" autocomplete="organization" value="{{ form.get('college', '') }}">
+        <datalist id="college-list">{% for c in colleges %}<option value="{{ c }}">{% endfor %}</datalist>
+      </div>
+      <div class="two">
+        <div class="field">
+          <label for="branch">Branch</label>
+          <select id="branch" name="branch" required>
+            <option value="">Select branch</option>
+            {% for b in branches %}<option value="{{ b }}"{% if form.get('branch') == b %} selected{% endif %}>{{ b }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="year">Year</label>
+          <select id="year" name="year" required>
+            <option value="">Select year</option>
+            {% for y in years %}<option value="{{ y }}"{% if form.get('year') == y %} selected{% endif %}>{{ y }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="mobile">Mobile</label>
+        <input id="mobile" name="mobile" required inputmode="numeric" autocomplete="tel" placeholder="10-digit Indian mobile" value="{{ form.get('mobile', '') }}">
+      </div>
+      <div class="field">
+        <label for="referral">Referral code <span class="opt">(optional)</span></label>
+        <input id="referral" name="referral" maxlength="12" autocapitalize="characters" value="{{ form.get('referral', '') }}">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Register for the workshop</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

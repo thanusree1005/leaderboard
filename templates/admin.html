@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_chip, goal_bar %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Admin Dashboard</h1>
+    <p class="lede">Campaign health for “{{ workshop_title }}”.</p>
+  </div>
+  <div class="badges">
+    <span class="badge badge-demo">{{ demo_label }}</span>
+    <span class="badge badge-snap">{{ snapshot_label }}</span>
+  </div>
+</div>
+
+<div class="kpis">
+  <section class="kpi">
+    <p class="metric-label">Total registrations</p>
+    <p class="kpi-num">{{ total }}</p>
+    <p class="muted">simulated, end of Day {{ snapshot_day }}</p>
+  </section>
+  <section class="kpi">
+    <p class="metric-label">Progress toward {{ goal }}</p>
+    <p class="kpi-num">{{ progress }}%</p>
+    <div class="bar bar-sm"><div class="bar-fill" style="width: {{ progress }}%"></div></div>
+    <p class="muted">about {{ expected_total }} expected by Day {{ snapshot_day }}</p>
+  </section>
+  <section class="kpi">
+    <p class="metric-label">Active campus leads</p>
+    <p class="kpi-num">{{ active_leads }}<span class="kpi-of"> of {{ total_leads }}</span></p>
+    <p class="muted">with at least one registration</p>
+  </section>
+  <section class="kpi">
+    <p class="metric-label">Top referrer</p>
+    {% if top %}
+    <p class="kpi-name">{{ top.name }}</p>
+    <p class="muted">{{ top.sim }} simulated referrals, code <code>{{ top.code }}</code></p>
+    {% else %}<p class="kpi-name">No referrals yet</p>{% endif %}
+  </section>
+</div>
+
+<section class="panel" aria-labelledby="src-h">
+  <h2 id="src-h">Registrations by source</h2>
+  {{ goal_bar(sources, total, goal) }}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Source</th><th class="num">Day {{ snapshot_day }} registrations</th><th class="num">7-day target</th><th class="num">Of target</th></tr></thead>
+      <tbody>
+        {% for s in sources %}
+        <tr>
+          <td><span class="dot" style="--c: {{ s.color }}"></span>{{ s.label }}</td>
+          <td class="num">{{ s.count }}</td>
+          <td class="num">{{ s.target }}</td>
+          <td class="num">{{ s.pct }}%</td>
+        </tr>
+        {% endfor %}
+        <tr class="total-row"><td>Total</td><td class="num">{{ total }}</td><td class="num">{{ goal }}</td><td class="num">{{ progress }}%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="hint">Targets are campaign planning targets. They add up to the {{ goal }} goal.</p>
+</section>
+
+<div class="cols-2">
+  <section class="panel" aria-labelledby="trend-h">
+    <h2 id="trend-h">Daily registration trend</h2>
+    <div class="trend" role="img" aria-label="Simulated registrations per day">
+      {% for d in trend %}
+      <div class="trend-col{% if d.count is none %} future{% endif %}">
+        <span class="trend-n">{{ d.count if d.count is not none else '' }}</span>
+        <div class="trend-bar" style="height: {{ '%.1f' % d.height }}%"></div>
+        <span class="trend-d">Day {{ d.day }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    <p class="hint">Days {{ snapshot_day + 1 }} to {{ campaign_days }} have not run in this snapshot.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="ab-h">
+    <h2 id="ab-h">A/B variant performance</h2>
+    <p class="hint tight">Simulated results for the two headlines.</p>
+    <div class="ab">
+      {% for v in ab %}
+      <article class="ab-card{% if v.leading %} lead{% endif %}">
+        <div class="ab-top">
+          <span class="ab-tag">Variant {{ v.variant }}</span>
+          {% if v.leading %}<span class="chip chip-ahead">Leading by {{ v.lift }}%</span>{% endif %}
+        </div>
+        <p class="ab-headline">{{ v.headline }}</p>
+        <dl class="ab-stats">
+          <div><dt>Views</dt><dd>{{ '{:,}'.format(v.views) }}</dd></div>
+          <div><dt>Registrations</dt><dd>{{ v.regs }}</dd></div>
+          <div><dt>Conversion</dt><dd>{{ v.rate }}%</dd></div>
+        </dl>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+<section class="panel" aria-labelledby="fu-h">
+  <h2 id="fu-h">Leads needing follow-up</h2>
+  <p class="hint tight">Leads behind the Day {{ snapshot_day }} pace of about {{ follow_up[0].expected if follow_up else '' }} registrations each.</p>
+  {% if follow_up %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Lead</th><th class="num">Registrations</th><th class="num">Groups posted</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for l in follow_up %}
+        <tr>
+          <td><a class="rowlink" href="/lead-kit?lead={{ l.code }}">{{ l.name }}</a><span class="sub">{{ l.college }}</span></td>
+          <td class="num">{{ l.regs }} / {{ l.goal }}</td>
+          <td class="num">{{ l.groups }}</td>
+          <td>{{ status_chip(l.status, l.status_key) }}</td>
+          <td class="act"><a class="btn btn-ghost btn-sm" href="{{ l.nudge_url }}" target="_blank" rel="noopener">Send WhatsApp nudge</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty">Every lead is on pace. Nothing to follow up today.</p>
+  {% endif %}
+</section>
+
+<section class="panel live" aria-labelledby="live-h">
+  <h2 id="live-h">Live test sign-ups</h2>
+  <p class="hint tight">Entries submitted through the Register form on this site. They are not part of the simulated numbers above.</p>
+  <p class="live-count"><strong>{{ live_count }}</strong> live test sign-up{{ 's' if live_count != 1 }}</p>
+  {% if live %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>College</th><th>Mobile</th><th>Source</th><th>Credited to</th><th>Variant</th><th>Submitted</th></tr></thead>
+      <tbody>
+        {% for r in live %}
+        <tr>
+          <td>{{ r.name }}</td><td class="muted">{{ r.college }}</td><td>{{ r.mobile }}</td>
+          <td>{{ r.source }}</td><td>{{ r.credited }}</td><td>{{ r.variant }}</td><td class="muted">{{ r.when }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty">No test sign-ups yet. <a href="/register">Open the Register page</a> to try the flow.</p>
+  {% endif %}
+</section>
+{% endblock %}
